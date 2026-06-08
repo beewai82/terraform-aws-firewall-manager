@@ -5,7 +5,7 @@ resource "aws_wafv2_ip_set" "allowlist" {
   ip_address_version = "IPV4"
 
   addresses = [
-    "10.0.0.0/8",    # Replace with your trusted CIDRs
+    "10.0.0.0/16"
   ]
 
   tags = { ManagedBy = "Terraform" }

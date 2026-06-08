@@ -10,7 +10,7 @@ terraform {
   backend "s3" {
     bucket         = "my-terraform-state-bucket"
     key            = "waf-regional/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "us-east-1", "us-west-2"
     encrypt        = true
     use_lockfile   = true
   }

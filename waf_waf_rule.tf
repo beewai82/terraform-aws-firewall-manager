@@ -19,6 +19,15 @@ resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
     metric_name                = "AllowTrustedIPs"
     sampled_requests_enabled   = true
   }
+
+  tags = {
+    Name        = "AllowTrustedIPs"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "Allow whitelisted IPs"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
+  }
 }
 
 
@@ -42,6 +51,15 @@ resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
     cloudwatch_metrics_enabled = true
     metric_name                = "BlockBadIPs"
     sampled_requests_enabled   = true
+  }
+
+  tags = {
+    Name        = "BlockBadIPs"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "Block blacklisted IPs"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
   }
 }
 
@@ -67,6 +85,15 @@ resource "aws_wafv2_web_acl_rule" "rate_limit" {
     metric_name                = "RateLimit"
     sampled_requests_enabled   = true
   }
+
+  tags = {
+    Name        = "RateLimit"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "Rate limiting protection"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
+  }
 }
 
 # AWS Core Rule Set
@@ -90,6 +117,15 @@ resource "aws_wafv2_web_acl_rule" "crs" {
     cloudwatch_metrics_enabled = true
     metric_name                = "AWSCoreRuleSet"
     sampled_requests_enabled   = true
+  }
+
+  tags = {
+    Name        = "AWSCoreRuleSet"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "AWS Core Rule Set protection"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
   }
 }
 
@@ -115,6 +151,15 @@ resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
     metric_name                = "KnownBadInputs"
     sampled_requests_enabled   = true
   }
+
+  tags = {
+    Name        = "KnownBadInputs"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "Known bad inputs protection (Log4j, SSRF)"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
+  }
 }
 
 # SQL Injection
@@ -139,6 +184,15 @@ resource "aws_wafv2_web_acl_rule" "sqli" {
     metric_name                = "SQLiRuleSet"
     sampled_requests_enabled   = true
   }
+
+  tags = {
+    Name        = "SQLiRuleSet"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "SQL Injection protection"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
+  }
 }
 
 # IP Reputation List
@@ -162,5 +216,14 @@ resource "aws_wafv2_web_acl_rule" "ip_reputation" {
     cloudwatch_metrics_enabled = true
     metric_name                = "IPReputation"
     sampled_requests_enabled   = true
+  }
+
+  tags = {
+    Name        = "IPReputation"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+    Purpose     = "IP Reputation protection"
+    OUManaged   = "true"
+    DeployedBy  = "AWS Firewall Manager"
   }
 }

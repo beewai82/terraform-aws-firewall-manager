@@ -1,39 +1,28 @@
-resource "aws_fms_policy" "org_waf" {
-  name                  = "org-waf-fms-policy"
-  description           = "Pushes WAF ACL to all ALBs and API GW stages across the Org"
-  remediation_enabled   = true
-  exclude_resource_tags = false
+resource "aws_wafv2_web_acl" "security_group_account_waf" {
+  name        = "${var.environment}-security-group-waf-acl"
+  description = "Regional WAF ACL for Security Group Account"
+  scope       = "REGIONAL"
 
-  resource_type_list = [
-    "AWS::ElasticLoadBalancingV2::LoadBalancer",
-    "AWS::ApiGateway::Stage",
-  ]
-
-  # Empty include_map = apply to ALL accounts in the Organisation.
-  # To target specific OUs: orgunit = ["ou-xxxx-yyyyyyy"]
-  include_map {
-    account = []
-    orgunit = []
+  default_action {
+    allow {}
   }
 
-  security_service_policy_data {
-    type = "WAFV2"
-
-    managed_service_data = jsonencode({
-      type      = "WAFV2"
-      webAclArn = aws_wafv2_web_acl.org_waf.arn
-
-      preProcessRuleGroups  = []
-      postProcessRuleGroups = []
-      defaultAction         = { type = "ALLOW" }
-
-      # false = respect any WAF ACL a member already set manually
-      # true  = FMS always wins, overrides member-account associations
-      overrideCustomerWebACLAssociation = false
-    })
+  # Required block for ACL-level metrics
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${var.environment}-SecurityGroupWAF"
+    sampled_requests_enabled   = true
   }
 
-  # Ensure all rules exist before FMS starts distributing the policy
+  tags = {
+    Name        = "${var.environment}-security-group-waf"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
+    ManagedBy   = "Terraform"
+    Purpose     = "Security Group Account WAF Protection"
+  }
+
   depends_on = [
     aws_wafv2_web_acl_rule.allow_trusted_ips,
     aws_wafv2_web_acl_rule.block_bad_ips,
@@ -43,6 +32,4 @@ resource "aws_fms_policy" "org_waf" {
     aws_wafv2_web_acl_rule.sqli,
     aws_wafv2_web_acl_rule.ip_reputation,
   ]
-
-  tags = { ManagedBy = "Terraform" }
 }

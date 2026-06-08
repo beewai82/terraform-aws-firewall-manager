@@ -1,6 +1,6 @@
 # Rule 0: Allow trusted IPs
 resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
-  name        = "AllowTrustedIPs"
+  name        = "${var.environment}-AllowTrustedIPs"
   priority    = 0
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -16,24 +16,25 @@ resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "AllowTrustedIPs"
+    metric_name                = "${replace(var.environment, "-", "")}AllowTrustedIPs"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "AllowTrustedIPs"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "Allow whitelisted IPs"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }
 
 
 # Rule 1: Block bad IPs
 resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
-  name        = "BlockBadIPs"
+  name        = "${var.environment}-BlockBadIPs"
   priority    = 1
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -49,23 +50,24 @@ resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "BlockBadIPs"
+    metric_name                = "${replace(var.environment, "-", "")}BlockBadIPs"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "BlockBadIPs"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "Block blacklisted IPs"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }
 
 # Rule 2: Rate limiting
 resource "aws_wafv2_web_acl_rule" "rate_limit" {
-  name        = "RateLimit"
+  name        = "${var.environment}-RateLimit"
   priority    = 10
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -75,30 +77,31 @@ resource "aws_wafv2_web_acl_rule" "rate_limit" {
 
   statement {
     rate_based_statement {
-      limit              = 2000 # requests per 5-minute window per IP
+      limit              = var.rate_limit_requests
       aggregate_key_type = "IP"
     }
   }
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "RateLimit"
+    metric_name                = "${replace(var.environment, "-", "")}RateLimit"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "RateLimit"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "Rate limiting protection"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }
 
 # AWS Core Rule Set
 resource "aws_wafv2_web_acl_rule" "crs" {
-  name        = "AWSCoreRuleSet"
+  name        = "${var.environment}-AWSCoreRuleSet"
   priority    = 20
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -115,23 +118,24 @@ resource "aws_wafv2_web_acl_rule" "crs" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "AWSCoreRuleSet"
+    metric_name                = "${replace(var.environment, "-", "")}AWSCoreRuleSet"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "AWSCoreRuleSet"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "AWS Core Rule Set protection"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }
 
 # Known Bad Inputs (Log4j, SSRF, etc.)
 resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
-  name        = "KnownBadInputs"
+  name        = "${var.environment}-KnownBadInputs"
   priority    = 21
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -148,23 +152,24 @@ resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "KnownBadInputs"
+    metric_name                = "${replace(var.environment, "-", "")}KnownBadInputs"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "KnownBadInputs"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "Known bad inputs protection (Log4j, SSRF)"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }
 
 # SQL Injection
 resource "aws_wafv2_web_acl_rule" "sqli" {
-  name        = "SQLiRuleSet"
+  name        = "${var.environment}-SQLiRuleSet"
   priority    = 22
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -181,23 +186,24 @@ resource "aws_wafv2_web_acl_rule" "sqli" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "SQLiRuleSet"
+    metric_name                = "${replace(var.environment, "-", "")}SQLiRuleSet"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "SQLiRuleSet"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "SQL Injection protection"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }
 
 # IP Reputation List
 resource "aws_wafv2_web_acl_rule" "ip_reputation" {
-  name        = "IPReputation"
+  name        = "${var.environment}-IPReputation"
   priority    = 23
   web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
@@ -214,16 +220,17 @@ resource "aws_wafv2_web_acl_rule" "ip_reputation" {
 
   visibility_config {
     cloudwatch_metrics_enabled = true
-    metric_name                = "IPReputation"
+    metric_name                = "${replace(var.environment, "-", "")}IPReputation"
     sampled_requests_enabled   = true
   }
 
   tags = {
     Name        = "IPReputation"
-    Environment = "Production"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
     ManagedBy   = "Terraform"
     Purpose     = "IP Reputation protection"
-    OUManaged   = "true"
-    DeployedBy  = "AWS Firewall Manager"
+    Scope       = "SecurityGroupAccount"
   }
 }

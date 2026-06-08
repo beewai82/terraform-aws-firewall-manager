@@ -10,8 +10,21 @@ terraform {
   backend "s3" {
     bucket         = "my-terraform-state-bucket"
     key            = "waf-regional/terraform.tfstate"
-    region         = "us-east-1", "us-west-2"
+    region         = "us-east-1"
     encrypt        = true
     use_lockfile   = true
   }
 }
+
+provider "aws" {
+  region = var.aws_region
+}
+
+# Target the security group account only
+locals {
+  account_id        = data.aws_caller_identity.current.account_id
+  deployment_region = var.aws_region
+  environment       = var.environment
+}
+
+data "aws_caller_identity" "current" {}

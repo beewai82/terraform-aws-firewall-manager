@@ -1,23 +1,33 @@
 resource "aws_wafv2_ip_set" "allowlist" {
-  name               = "org-allowlist"
-  description        = "Trusted IPs — bypass WAF inspection"
+  name               = "${var.environment}-security-group-allowlist"
+  description        = "Security Group Account: Trusted IPs — bypass WAF inspection"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
 
-  addresses = [
-    "10.0.0.0/16"
-  ]
+  addresses = var.allowlist_ips
 
-  tags = { ManagedBy = "Terraform" }
+  tags = {
+    Name        = "${var.environment}-security-group-allowlist"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
+    ManagedBy   = "Terraform"
+  }
 }
 
 resource "aws_wafv2_ip_set" "blocklist" {
-  name               = "org-blocklist"
-  description        = "Known bad IPs — always denied"
+  name               = "${var.environment}-security-group-blocklist"
+  description        = "Security Group Account: Known bad IPs — always denied"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
 
-  addresses = []   # Replace with your bad IPs/CIDRs
+  addresses = var.blocklist_ips
 
-  tags = { ManagedBy = "Terraform" }
+  tags = {
+    Name        = "${var.environment}-security-group-blocklist"
+    Environment = var.environment
+    Account     = local.account_id
+    Region      = local.deployment_region
+    ManagedBy   = "Terraform"
+  }
 }

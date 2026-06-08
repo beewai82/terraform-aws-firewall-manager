@@ -17,14 +17,14 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = var.region
 }
 
 # Target the security group account only
 locals {
-  account_id        = data.aws_caller_identity.current.account_id
-  deployment_region = var.aws_region
-  environment       = var.environment
+  account_id = data.aws_caller_identity.current.account_id
+  region     = var.region
+  environment = var.environment_name
 }
 
 data "aws_caller_identity" "current" {}

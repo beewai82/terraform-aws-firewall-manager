@@ -1,33 +1,39 @@
-resource "aws_wafv2_ip_set" "allowlist" {
-  name               = "${var.environment}-security-group-allowlist"
+resource "aws_wafv2_ip_set" "trusted_ips" {
+  name               = "${var.environment_name}-security-group-trusted-ips"
   description        = "Security Group Account: Trusted IPs — bypass WAF inspection"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
 
-  addresses = var.allowlist_ips
+  addresses = var.trusted_ip_list
 
-  tags = {
-    Name        = "${var.environment}-security-group-allowlist"
-    Environment = var.environment
-    Account     = local.account_id
-    Region      = local.deployment_region
-    ManagedBy   = "Terraform"
-  }
+  tags = merge(
+    var.tags,
+    {
+      Name        = "${var.environment_name}-security-group-trusted-ips"
+      Environment = var.environment_name
+      Account     = local.account_id
+      Region      = local.region
+      ManagedBy   = "Terraform"
+    }
+  )
 }
 
-resource "aws_wafv2_ip_set" "blocklist" {
-  name               = "${var.environment}-security-group-blocklist"
+resource "aws_wafv2_ip_set" "blocked_ips" {
+  name               = "${var.environment_name}-security-group-blocked-ips"
   description        = "Security Group Account: Known bad IPs — always denied"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
 
-  addresses = var.blocklist_ips
+  addresses = var.blocked_ip_list
 
-  tags = {
-    Name        = "${var.environment}-security-group-blocklist"
-    Environment = var.environment
-    Account     = local.account_id
-    Region      = local.deployment_region
-    ManagedBy   = "Terraform"
-  }
+  tags = merge(
+    var.tags,
+    {
+      Name        = "${var.environment_name}-security-group-blocked-ips"
+      Environment = var.environment_name
+      Account     = local.account_id
+      Region      = local.region
+      ManagedBy   = "Terraform"
+    }
+  )
 }

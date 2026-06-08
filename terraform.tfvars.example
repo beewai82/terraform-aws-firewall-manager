@@ -1,25 +1,22 @@
 # AWS Configuration
-aws_region  = "us-east-1"
-environment = "prod"
+region           = "us-east-1"
+environment_name = "prod"
 
-# Security Group Account ID (leave empty to auto-detect)
-# security_group_account_id = "123456789012"
-
-# IP Allowlist - Trusted IPs that bypass WAF inspection
-allowlist_ips = [
+# IP Trusted List - IPs that bypass WAF inspection
+trusted_ip_list = [
   "10.0.0.0/8",
   "172.16.0.0/12",
   # Add internal corporate IPs here
 ]
 
-# IP Blocklist - Known malicious IPs to deny
-blocklist_ips = [
+# IP Blocked List - Known malicious IPs to deny
+blocked_ip_list = [
   # Add known bad IPs/CIDRs here
   # "203.0.113.0/24"
 ]
 
 # Rate limiting configuration (requests per 5-minute window per IP)
-rate_limit_requests = 2000
+rate_limit_threshold = 2000
 
 # CloudWatch and logging
 enable_cloudwatch_metrics = true
@@ -27,7 +24,7 @@ enable_sampled_requests   = true
 
 # Common tags applied to all resources
 # These will be merged with resource-specific tags
-common_tags = {
+tags = {
   Project     = "SecurityTools"
   ManagedBy   = "Terraform"
   CostCenter  = "Security"

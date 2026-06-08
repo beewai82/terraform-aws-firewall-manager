@@ -1,9 +1,9 @@
 # Security Group Account WAF Module
 # Deploys a regional WAF ACL with comprehensive security rules
+# References locals and data from parent security-tools module
 
-# WAF Web ACL for regional protection (ALB, API Gateway, etc.)
 resource "aws_wafv2_web_acl" "security_group_waf" {
-  name        = "${local.name_prefix}-waf"
+  name        = "prod-security-group-waf"
   description = "Regional WAF ACL for Security Group Account"
   scope       = "REGIONAL"
 
@@ -12,15 +12,15 @@ resource "aws_wafv2_web_acl" "security_group_waf" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}SecurityGroupWAF"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdSecurityGroupWAF"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
     local.common_tags,
     {
-      Name    = "${local.name_prefix}-waf"
+      Name    = "prod-security-group-waf"
       Purpose = "Security Group Account WAF Protection"
     }
   )

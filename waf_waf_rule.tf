@@ -1,7 +1,7 @@
 # Rule 0: Allow trusted IPs
 resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
-  name        = "${local.name_prefix}-allow-trusted-ips"
-  priority    = local.rule_priorities.allow_trusted_ips
+  name        = "prod-security-group-allow-trusted-ips"
+  priority    = 0
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   action {
@@ -15,9 +15,9 @@ resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}AllowTrustedIPs"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdAllowTrustedIPs"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
@@ -32,8 +32,8 @@ resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
 
 # Rule 1: Block bad IPs
 resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
-  name        = "${local.name_prefix}-block-bad-ips"
-  priority    = local.rule_priorities.block_bad_ips
+  name        = "prod-security-group-block-bad-ips"
+  priority    = 1
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   action {
@@ -47,9 +47,9 @@ resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}BlockBadIPs"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdBlockBadIPs"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
@@ -63,8 +63,8 @@ resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
 
 # Rule 2: Rate limiting
 resource "aws_wafv2_web_acl_rule" "rate_limit" {
-  name        = "${local.name_prefix}-rate-limit"
-  priority    = local.rule_priorities.rate_limit
+  name        = "prod-security-group-rate-limit"
+  priority    = 10
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   action {
@@ -73,15 +73,15 @@ resource "aws_wafv2_web_acl_rule" "rate_limit" {
 
   statement {
     rate_based_statement {
-      limit              = local.rate_limit
+      limit              = 2000
       aggregate_key_type = "IP"
     }
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}RateLimit"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdRateLimit"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
@@ -95,8 +95,8 @@ resource "aws_wafv2_web_acl_rule" "rate_limit" {
 
 # AWS Core Rule Set
 resource "aws_wafv2_web_acl_rule" "crs" {
-  name        = "${local.name_prefix}-aws-core-rule-set"
-  priority    = local.rule_priorities.crs
+  name        = "prod-security-group-aws-core-rule-set"
+  priority    = 20
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -111,9 +111,9 @@ resource "aws_wafv2_web_acl_rule" "crs" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}AWSCoreRuleSet"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdAWSCoreRuleSet"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
@@ -127,8 +127,8 @@ resource "aws_wafv2_web_acl_rule" "crs" {
 
 # Known Bad Inputs (Log4j, SSRF, etc.)
 resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
-  name        = "${local.name_prefix}-known-bad-inputs"
-  priority    = local.rule_priorities.known_bad_inputs
+  name        = "prod-security-group-known-bad-inputs"
+  priority    = 21
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -143,9 +143,9 @@ resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}KnownBadInputs"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdKnownBadInputs"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
@@ -159,8 +159,8 @@ resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
 
 # SQL Injection
 resource "aws_wafv2_web_acl_rule" "sqli" {
-  name        = "${local.name_prefix}-sql-injection"
-  priority    = local.rule_priorities.sqli
+  name        = "prod-security-group-sql-injection"
+  priority    = 22
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -175,9 +175,9 @@ resource "aws_wafv2_web_acl_rule" "sqli" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}SQLiRuleSet"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdSQLiRuleSet"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(
@@ -191,8 +191,8 @@ resource "aws_wafv2_web_acl_rule" "sqli" {
 
 # IP Reputation List
 resource "aws_wafv2_web_acl_rule" "ip_reputation" {
-  name        = "${local.name_prefix}-ip-reputation"
-  priority    = local.rule_priorities.ip_reputation
+  name        = "prod-security-group-ip-reputation"
+  priority    = 23
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -207,9 +207,9 @@ resource "aws_wafv2_web_acl_rule" "ip_reputation" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
-    metric_name                = "${replace(local.environment, "-", "")}IPReputation"
-    sampled_requests_enabled   = local.enable_sampled_requests
+    cloudwatch_metrics_enabled = true
+    metric_name                = "ProdIPReputation"
+    sampled_requests_enabled   = true
   }
 
   tags = merge(

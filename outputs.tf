@@ -28,18 +28,18 @@ output "account_id" {
   value       = local.account_id
 }
 
-output "deployment_region" {
+output "region" {
   description = "AWS region where WAF is deployed"
   value       = local.region
 }
 
-output "environment_name" {
+output "environment" {
   description = "Environment name"
-  value       = var.environment_name
+  value       = local.environment
 }
 
 output "waf_rules_deployed" {
-  description = "Summary of deployed WAF rules"
+  description = "Summary of deployed WAF rules with their priorities"
   value = {
     allow_trusted_ips  = aws_wafv2_web_acl_rule.allow_trusted_ips.name
     block_bad_ips      = aws_wafv2_web_acl_rule.block_bad_ips.name

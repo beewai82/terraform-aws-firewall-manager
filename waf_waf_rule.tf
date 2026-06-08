@@ -1,7 +1,7 @@
 # Rule 0: Allow trusted IPs
 resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
-  name        = "${var.environment_name}-allow-trusted-ips"
-  priority    = 0
+  name        = "${local.name_prefix}-allow-trusted-ips"
+  priority    = local.rule_priorities.allow_trusted_ips
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   action {
@@ -15,21 +15,16 @@ resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}AllowTrustedIPs"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}AllowTrustedIPs"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "AllowTrustedIPs"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "Allow trusted IPs"
-      Scope       = "SecurityGroupAccount"
+      Name    = "AllowTrustedIPs"
+      Purpose = "Allow trusted IPs"
     }
   )
 }
@@ -37,8 +32,8 @@ resource "aws_wafv2_web_acl_rule" "allow_trusted_ips" {
 
 # Rule 1: Block bad IPs
 resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
-  name        = "${var.environment_name}-block-bad-ips"
-  priority    = 1
+  name        = "${local.name_prefix}-block-bad-ips"
+  priority    = local.rule_priorities.block_bad_ips
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   action {
@@ -52,29 +47,24 @@ resource "aws_wafv2_web_acl_rule" "block_bad_ips" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}BlockBadIPs"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}BlockBadIPs"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "BlockBadIPs"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "Block bad IPs"
-      Scope       = "SecurityGroupAccount"
+      Name    = "BlockBadIPs"
+      Purpose = "Block bad IPs"
     }
   )
 }
 
 # Rule 2: Rate limiting
 resource "aws_wafv2_web_acl_rule" "rate_limit" {
-  name        = "${var.environment_name}-rate-limit"
-  priority    = 10
+  name        = "${local.name_prefix}-rate-limit"
+  priority    = local.rule_priorities.rate_limit
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   action {
@@ -83,35 +73,30 @@ resource "aws_wafv2_web_acl_rule" "rate_limit" {
 
   statement {
     rate_based_statement {
-      limit              = var.rate_limit_threshold
+      limit              = local.rate_limit
       aggregate_key_type = "IP"
     }
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}RateLimit"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}RateLimit"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "RateLimit"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "Rate limiting protection"
-      Scope       = "SecurityGroupAccount"
+      Name    = "RateLimit"
+      Purpose = "Rate limiting protection"
     }
   )
 }
 
 # AWS Core Rule Set
 resource "aws_wafv2_web_acl_rule" "crs" {
-  name        = "${var.environment_name}-aws-core-rule-set"
-  priority    = 20
+  name        = "${local.name_prefix}-aws-core-rule-set"
+  priority    = local.rule_priorities.crs
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -126,29 +111,24 @@ resource "aws_wafv2_web_acl_rule" "crs" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}AWSCoreRuleSet"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}AWSCoreRuleSet"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "AWSCoreRuleSet"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "AWS Core Rule Set protection"
-      Scope       = "SecurityGroupAccount"
+      Name    = "AWSCoreRuleSet"
+      Purpose = "AWS Core Rule Set protection"
     }
   )
 }
 
 # Known Bad Inputs (Log4j, SSRF, etc.)
 resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
-  name        = "${var.environment_name}-known-bad-inputs"
-  priority    = 21
+  name        = "${local.name_prefix}-known-bad-inputs"
+  priority    = local.rule_priorities.known_bad_inputs
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -163,29 +143,24 @@ resource "aws_wafv2_web_acl_rule" "known_bad_inputs" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}KnownBadInputs"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}KnownBadInputs"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "KnownBadInputs"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "Known bad inputs protection (Log4j, SSRF)"
-      Scope       = "SecurityGroupAccount"
+      Name    = "KnownBadInputs"
+      Purpose = "Known bad inputs protection (Log4j, SSRF)"
     }
   )
 }
 
 # SQL Injection
 resource "aws_wafv2_web_acl_rule" "sqli" {
-  name        = "${var.environment_name}-sql-injection"
-  priority    = 22
+  name        = "${local.name_prefix}-sql-injection"
+  priority    = local.rule_priorities.sqli
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -200,29 +175,24 @@ resource "aws_wafv2_web_acl_rule" "sqli" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}SQLiRuleSet"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}SQLiRuleSet"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "SQLiRuleSet"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "SQL Injection protection"
-      Scope       = "SecurityGroupAccount"
+      Name    = "SQLiRuleSet"
+      Purpose = "SQL Injection protection"
     }
   )
 }
 
 # IP Reputation List
 resource "aws_wafv2_web_acl_rule" "ip_reputation" {
-  name        = "${var.environment_name}-ip-reputation"
-  priority    = 23
+  name        = "${local.name_prefix}-ip-reputation"
+  priority    = local.rule_priorities.ip_reputation
   web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
 
   override_action {
@@ -237,21 +207,16 @@ resource "aws_wafv2_web_acl_rule" "ip_reputation" {
   }
 
   visibility_config {
-    cloudwatch_metrics_enabled = var.enable_cloudwatch_metrics
-    metric_name                = "${replace(var.environment_name, "-", "")}IPReputation"
-    sampled_requests_enabled   = var.enable_sampled_requests
+    cloudwatch_metrics_enabled = local.enable_cloudwatch_metrics
+    metric_name                = "${replace(local.environment, "-", "")}IPReputation"
+    sampled_requests_enabled   = local.enable_sampled_requests
   }
 
   tags = merge(
-    var.tags,
+    local.common_tags,
     {
-      Name        = "IPReputation"
-      Environment = var.environment_name
-      Account     = local.account_id
-      Region      = local.region
-      ManagedBy   = "Terraform"
-      Purpose     = "IP Reputation protection"
-      Scope       = "SecurityGroupAccount"
+      Name    = "IPReputation"
+      Purpose = "IP Reputation protection"
     }
   )
 }

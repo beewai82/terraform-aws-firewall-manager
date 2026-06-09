@@ -29,5 +29,6 @@ resource "aws_wafv2_web_acl" "security_group_account_waf" {
     aws_wafv2_web_acl_rule.known_bad_inputs,
     aws_wafv2_web_acl_rule.sqli,
     aws_wafv2_web_acl_rule.ip_reputation,
+    aws_wafv2_web_acl_rule.allow_springeq_network_or_us_with_headers,
   ]
 }

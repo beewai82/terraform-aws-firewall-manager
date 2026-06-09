@@ -2,7 +2,7 @@
 resource "aws_wafv2_web_acl_rule" "allow_springeq_network_or_us_with_headers" {
   name        = "prod-security-group-allow-springeq-or-us-headers"
   priority    = 16
-  web_acl_arn = aws_wafv2_web_acl.security_group_waf.arn
+  web_acl_arn = aws_wafv2_web_acl.org_waf.arn
 
   action {
     allow {}
